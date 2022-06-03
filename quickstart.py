@@ -85,17 +85,29 @@ def main():
         # print(site)
 
         if site[4]:
-            for item in soup.select(site[4]):
-                hrefList.append(item[site[5]])
+            for item in soup.select(site[9]):
+                if item[site[10]] and item.select(site[11]) and item.select(site[11])[0] and item.select(site[11])[0].text:
+                    # print(item.select(site[11])[0].text)
+                    hrefList.append(item[site[10]])
+                    hrefList.append(item.select(site[11])[0].text)
+                # print(hrefList)
             used = set()
             unique = [x for x in hrefList if x not in used and (used.add(x) or True)]
-            print(unique)
+            zipped = zip(unique[0::2], unique[1::2])
+            for x in zipped:
+                print(x[0], x[1])
+            """
+            for item in soup.select(site[4]):
+                hrefList.append(item[site[5]])
+            """
+        """
         if site[6]:
             for item in soup.select(site[6]):
                 titleList.append(item.text)
             used = set()
             unique = [x for x in titleList if x not in used and (used.add(x) or True)]
-            print(unique)
+            #print(unique)
+        """
 
 if __name__ == '__main__':
     main()
