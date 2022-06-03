@@ -16,7 +16,14 @@ if __name__ == '__main__':
     url = "https://pittsburghbaseball.com/"
     text = urllib.request.urlopen(url).read()
     soup = BeautifulSoup(text,'html.parser')
+    hrefList = []
 
+    for item in soup.select("ul.wplp_listposts.defaultflexslide a[href]"):
+        hrefList.append(item['href'])
+    used = set()
+    unique = [x for x in hrefList if x not in used and (used.add(x) or True)]
+    print(unique)
+    """
     data = soup.find_all('ul', attrs={'class': 'wplp_listposts defaultflexslide'})
     hrefs = []
     for ul in data:
@@ -26,4 +33,5 @@ if __name__ == '__main__':
                 hrefs.append(a['href'])
     print(hrefs)
     print(len(hrefs))
+    """
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
