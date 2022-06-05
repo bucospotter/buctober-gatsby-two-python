@@ -16,6 +16,7 @@
 from __future__ import print_function
 import urllib.request
 from bs4 import BeautifulSoup
+import ssl
 
 import os.path
 
@@ -30,7 +31,7 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
 # The ID and range of a sample spreadsheet.
 SAMPLE_SPREADSHEET_ID = '1FV4JCdbJ6GiTgJiARXflbdth7kRB8WXu6izFndP6Um8'
-SAMPLE_RANGE_NAME = 'Pittsburgh Pirates!A1:Z14'
+SAMPLE_RANGE_NAME = 'Pittsburgh Pirates!A1:U14'
 
 
 def main():
@@ -76,30 +77,37 @@ def main():
     except HttpError as err:
         print(err)
     print("---------------------------------------------------------")
+    ssl._create_default_https_context = ssl._create_unverified_context
+    hrefList = []
     for site in sitesList[1:]:
         url = site[1]
         text = urllib.request.urlopen(url).read()
         soup = BeautifulSoup(text,'html.parser')
-        hrefList = []
         titleList = []
         # print(site)
 
         if site[4]:
-            for item in soup.select(site[9]):
-                if item[site[10]] and item.select(site[11]) and item.select(site[11])[0] and item.select(site[11])[0].text:
-                    # print(item.select(site[11])[0].text)
-                    hrefList.append(item[site[10]])
-                    hrefList.append(item.select(site[11])[0].text)
+            for item in soup.select(site[4]):
+                if item[site[5]] and item.select(site[6]) and item.select(site[6])[0] and item.select(site[6])[0].text:
+                    # print(item.select(site[6])[0].text)
+                    hrefList.append(item[site[5]])
+                    hrefList.append(item.select(site[6])[0].text)
+                elif item[site[5]] and site[6] == "a":
+                    hrefList.append(item[site[5]])
+                    hrefList.append(item.text)
                 # print(hrefList)
             used = set()
             unique = [x for x in hrefList if x not in used and (used.add(x) or True)]
+            hrefList = unique
             zipped = zip(unique[0::2], unique[1::2])
+            """
             for x in zipped:
                 print(x[0], x[1])
             """
-            for item in soup.select(site[4]):
-                hrefList.append(item[site[5]])
-            """
+        """
+        for item in soup.select(site[4]):
+            hrefList.append(item[site[5]])
+        """
         """
         if site[6]:
             for item in soup.select(site[6]):
@@ -108,6 +116,32 @@ def main():
             unique = [x for x in titleList if x not in used and (used.add(x) or True)]
             #print(unique)
         """
+        if site[7]:
+            hrefListTemp = []
+            for item in soup.select(site[7]):
+                if item[site[8]] and site[9] != "a" and item.select(site[9]) and item.select(site[9])[0] and item.select(site[9])[0].text:
+                    # print(item.select(site[6])[0].text)
+                    hrefListTemp.append(item[site[8]])
+                    hrefListTemp.append(item.select(site[9])[0].text)
+                elif item[site[8]] and site[9] == "a":
+                    hrefListTemp.append(item[site[8]])
+                    hrefListTemp.append(item.text)
+                # print(hrefList)
+            used = set()
+            unique = [x for x in hrefListTemp if x not in used and (used.add(x) or True)]
+            hrefList = hrefList + unique
+            zipped = zip(unique[0::2], unique[1::2])
+            """
+            for x in zipped:
+                print(x[0], x[1])
+            """
+    print("hrefList")
+    print(hrefList)
+    zipped = zip(hrefList[0::2], hrefList[1::2])
+    print("zipped")
+    print(zipped)
+    for x in zipped:
+        print(x[0], x[1])
 
 if __name__ == '__main__':
     main()
